@@ -1,0 +1,6 @@
+.venv
+.env
+*.log
+
+chroma
+data
