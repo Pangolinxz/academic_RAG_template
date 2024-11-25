@@ -59,7 +59,7 @@ class Collection:
         cleaned_query = self.clean_text(query)
 
         return self.collection.query(
-            query_texts=query, n_results=n_results, where=where
+            query_texts=cleaned_query, n_results=n_results, where=where
         )
 
     @typechecked
