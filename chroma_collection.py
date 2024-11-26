@@ -94,7 +94,8 @@ class Collection:
         items = os.listdir(folder_path)
         for item in items:
             item_path = os.path.join(folder_path, item)
-            path = re.findall(r"\\.*", item_path)[0].replace("\\", "/")
+            # Normaliza la ruta para sistemas multiplataforma
+            path = os.path.normpath(item_path)
 
             if os.path.isfile(item_path):
                 title = os.path.splitext(item)[0]
@@ -184,11 +185,12 @@ class Collection:
 if __name__ == "__main__":
     from pprint import pprint
 
+
     notes = Collection("notes")
     examples = Collection("examples")
 
-    # notes.ingest(folder_path="./data/notes")
-    # examples.ingest(folder_path="./data/examples", split_files=False)
+    notes.ingest(folder_path="data/notes")
+    examples.ingest(folder_path="data/examples", split_files=False)
 
     query = "¿Cómo normalizar una tabla en cuarta forma normal?"
     print("\nQuery:", query)

@@ -59,21 +59,12 @@ class AcademicAssistant:
         self.logger.info(f"Plantilla leída: {template_name}")
         return template
 
-    def select_prompt_template(self):
-        try:
-            prompt_selection = int(input("¿Qué tipo de asistente deseas utilizar? (1) Resumen, (2) Preparación Examen: "))
-            if prompt_selection == 1:
-                return self.read_template("summary")
-            elif prompt_selection == 2:
-                return self.read_template("test_preparation")
-            else:
-                self.logger.warning("Número inválido introducido para la selección de plantilla.")
-                print("Por favor, introduce un número válido.")
-                exit()
-        except ValueError:
-            self.logger.error("Valor no numérico introducido para la selección de plantilla.")
-            print("Por favor, introduce un número.")
-            exit()
+    def select_prompt_template(self, prompt_selection):
+
+        if prompt_selection == "repaso":
+            return self.read_template("summary")
+        else:
+            return self.read_template("test_preparation")
 
     def generate_response(self, user_input, prompt_template):
         self.logger.info(f"Entrada del usuario: {user_input}")
