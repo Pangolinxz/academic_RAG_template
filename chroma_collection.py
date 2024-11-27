@@ -1,6 +1,5 @@
 import os
 import chromadb as db
-from dotenv import load_dotenv
 from uuid import uuid4
 from datetime import datetime
 from langchain_text_splitters import RecursiveCharacterTextSplitter
@@ -20,7 +19,6 @@ class Collection:
 
     @typechecked
     def __init__(self, collection: str):
-        load_dotenv()
         try:
             self.client = db.PersistentClient()
         except:
@@ -35,11 +33,11 @@ class Collection:
         self,
         text: str,
         encoding_name: str = "cl100k_base",
-        model_name: str = "gpt-4",
+        model_name: str = "____",
         chunk_size: int = 120,
         chunk_overlap: int = 20,
     ):
-        text_splitter = RecursiveCharacterTextSplitter.from_tiktoken_encoder(
+        text_splitter = _______________________.from_tiktoken_encoder(
             encoding_name=encoding_name,
             model_name=model_name,
             chunk_size=chunk_size,
@@ -58,7 +56,7 @@ class Collection:
     def query(self, query: str, n_results: int = 3, where=None):        
         cleaned_query = self.clean_text(query)
 
-        return self.collection.query(
+        return self.collection.____(
             query_texts=cleaned_query, n_results=n_results, where=where
         )
 
@@ -68,7 +66,7 @@ class Collection:
 
     @typechecked
     def clean_text(self, text: str):
-        spanish_stopwords = stopwords.words('spanish')
+        spanish_stopwords = _________.words('spanish')
         
         query = text.lower()
         query = ''.join(c for c in unicodedata.normalize('NFD', query) if unicodedata.category(c) != 'Mn')
@@ -100,7 +98,7 @@ class Collection:
             if os.path.isfile(item_path):
                 title = os.path.splitext(item)[0]
 
-                content = DocumentReader(item_path).read_file()
+                content = _________(item_path).read_file()
                 if content is None:
                     continue
 
@@ -118,17 +116,18 @@ class Collection:
                             ],
                         )
 
-                        if is_contained:
+                        if ________:
                             id = str(result["ids"][0])
                             action = "Actualizando"
-                            creation_date = result["metadatas"][0][0]["creation_date"]
+                            creation_date = result["______"][0][0]["creation_date"]
                             update_date = str(datetime.now())
                         else:
                             id = str(uuid4())
                             action = "Agregando"
                             creation_date = str(datetime.now())
                             update_date = creation_date
-                        self.upsert(
+
+                        self.______(
                             text,
                             metadata={
                                 "title": title,
@@ -140,7 +139,7 @@ class Collection:
                             },
                             id=id,
                         )
-                        logging.info(
+                        ______.info(
                             f"{self.collection.name}: {action} archivo: {title}, ruta: {path}, cantidad de chunks: {len(split_content)}"
                         )
                 else:
@@ -186,16 +185,16 @@ if __name__ == "__main__":
     from pprint import pprint
 
 
-    notes = Collection("notes")
+    notes = ________("notes")
     examples = Collection("examples")
 
-    notes.ingest(folder_path="data/notes")
+    notes.______(folder_path="data/notes")
     examples.ingest(folder_path="data/examples", split_files=False)
 
     query = "¿Cómo normalizar una tabla en cuarta forma normal?"
     print("\nQuery:", query)
     print("Notes:")
-    pprint(notes.query(query))
+    pprint(notes._____(query))
     print("-"*140)
     print("Examples:")
     pprint(examples.query(query, 1))
