@@ -1,0 +1,12 @@
+Contexto:
+La dinámica de sistemas utiliza modelos matemáticos y simulaciones para analizar el comportamiento de sistemas complejos a lo largo del tiempo. Se centra en conceptos como retroalimentación, stocks y flujos.
+
+Pregunta:
+¿Qué es un ciclo de retroalimentación y cómo afecta a un sistema dinámico?
+
+Respuesta:
+Un ciclo de retroalimentación en dinámica de sistemas es un bucle en el que las variables de un sistema afectan a otras, y esas variables, a su vez, influyen de regreso en las originales. Hay dos tipos principales:
+
+Retroalimentación Positiva: Amplifica los cambios en el sistema, creando efectos de crecimiento exponencial o colapso rápido. Ejemplo: el interés compuesto en economía.
+Retroalimentación Negativa: Estabiliza el sistema, contrarrestando desviaciones y manteniendo el equilibrio. Ejemplo: un termostato que regula la temperatura de una habitación.
+Estos ciclos son fundamentales para entender comportamientos como oscilaciones, estabilidad o caos en sistemas dinámicos.

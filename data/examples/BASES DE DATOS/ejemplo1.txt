@@ -1,0 +1,25 @@
+Contexto:
+Las bases de datos son estructuras que permiten almacenar, consultar y administrar grandes volúmenes de información. Pueden ser relacionales (basadas en SQL) o no relacionales (NoSQL).
+
+Pregunta:
+¿Cuáles son las principales diferencias entre bases de datos relacionales y no relacionales?
+
+Respuesta:
+Las principales diferencias entre bases de datos relacionales y no relacionales son:
+
+Estructura de Datos:
+
+Relacionales: Organizan datos en tablas con filas y columnas. Utilizan un esquema predefinido.
+No Relacionales: Usan estructuras flexibles como documentos, grafos, claves-valor o columnas amplias.
+Consultas:
+
+Relacionales: Utilizan SQL, un lenguaje estructurado estándar.
+No Relacionales: Ofrecen consultas específicas para cada sistema, como MongoDB Query Language.
+Escalabilidad:
+
+Relacionales: Escalables verticalmente (mejorando hardware).
+No Relacionales: Escalables horizontalmente (agregando nodos).
+Casos de Uso:
+
+Relacionales: Ideales para aplicaciones transaccionales como sistemas de gestión financiera.
+No Relacionales: Útiles para aplicaciones con datos no estructurados, como análisis en tiempo real o redes sociales.

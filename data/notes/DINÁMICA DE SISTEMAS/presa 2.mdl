@@ -1,0 +1,111 @@
+{UTF-8}
+Nacimientos presa=A FUNCTION OF(Nacimientos presa,Población presa) ~~|
+Nacimientos presa=
+	0.04<<Conejos>>
+	~	
+	~		|
+
+Densidad de depredación  = A FUNCTION OF( Población depredador,Población presa)
+	~	
+	~		|
+
+Muertes depredador  = A FUNCTION OF( Densidad de depredación)
+	~	
+	~		|
+
+Muertes presa  = A FUNCTION OF( Densidad de depredación)
+	~	
+	~		|
+
+Nacimientos depredador  = A FUNCTION OF( Densidad de depredación)
+	~	
+	~		|
+
+Población depredador  = A FUNCTION OF( Muertes depredador,Nacimientos depredador)
+	~	
+	~		|
+
+Población presa  = A FUNCTION OF( Muertes presa,Nacimientos presa)
+	~	
+	~		|
+
+********************************************************
+	.Control
+********************************************************~
+		Simulation Control Parameters
+	|
+
+FINAL TIME  = 100
+	~	Month
+	~	The final time for the simulation.
+	|
+
+INITIAL TIME  = 0
+	~	Month
+	~	The initial time for the simulation.
+	|
+
+SAVEPER  = 
+        TIME STEP
+	~	Month [0,?]
+	~	The frequency with which output is stored.
+	|
+
+TIME STEP  = 1
+	~	Month [0,?]
+	~	The time step for the simulation.
+	|
+
+\\\---/// Sketch information - do not modify anything except names
+V300  Do not put anything below this section - it will be ignored
+*View 1
+$-1--1--1,0,|12||-1--1--1|-1--1--1|-1--1--1|-1--1--1|-1--1--1|96,96,100,0
+10,1,Nacimientos presa,363,188,51,22,8,3,0,0,-1,0,0,0,0,0,0,0,0,0
+10,2,Población presa,596,183,42,22,8,3,0,0,-1,0,0,0,0,0,0,0,0,0
+10,3,Muertes presa,784,136,60,22,8,3,0,0,-1,0,0,0,0,0,0,0,0,0
+10,4,Densidad de depredación,680,313,51,22,8,3,0,0,-1,0,0,0,0,0,0,0,0,0
+10,5,Nacimientos depredador,466,435,51,22,8,3,0,0,-1,0,0,0,0,0,0,0,0,0
+10,6,Población depredador,685,454,47,22,8,3,0,0,-1,0,0,0,0,0,0,0,0,0
+10,7,Muertes depredador,847,415,47,22,8,3,0,0,-1,0,0,0,0,0,0,0,0,0
+1,8,1,2,1,0,43,0,0,192,0,-1--1--1,,1|(489,92)|
+1,9,2,1,1,0,43,0,0,192,0,-1--1--1,,1|(470,267)|
+1,10,3,2,1,0,45,0,0,192,0,-1--1--1,,1|(674,124)|
+1,11,2,4,1,0,43,0,0,192,0,-1--1--1,,1|(624,270)|
+1,12,4,3,1,0,43,0,0,192,0,-1--1--1,,1|(774,240)|
+1,13,4,7,1,0,43,0,0,192,0,-1--1--1,,1|(823,352)|
+1,14,7,6,1,0,45,0,0,192,0,-1--1--1,,1|(783,478)|
+1,15,6,4,1,0,45,0,0,192,0,-1--1--1,,1|(709,401)|
+1,16,4,5,1,0,43,0,0,192,0,-1--1--1,,1|(472,358)|
+1,17,5,6,1,0,43,0,0,192,0,-1--1--1,,1|(546,486)|
+///---\\\
+:L<%^E!@
+5:Muertes presa
+9:current
+19:100,0
+24:0
+25:0
+26:0
+23:0
+15:0,0,0,0,0,0
+27:0,
+34:0,
+42:0
+72:0
+73:0
+95:0
+96:0
+97:0
+77:0
+78:0
+102:1
+93:0
+94:0
+92:0
+91:0
+90:0
+87:0
+75:
+43:
+103:8,8,8,3,8
+105:0,0,0,0,0,0,0,0,0,0
+104:Courier|12||0-0-0|0-0-0|-1--1--1|0-0-255|192-192-192|-1--1--1

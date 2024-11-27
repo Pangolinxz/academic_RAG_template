@@ -1,0 +1,19 @@
+{
+	"nodes":[
+		{"id":"5c3696bbde8a6be6","type":"text","text":"¿Cómo abordar la calidad?","x":-125,"y":-30,"width":252,"height":50},
+		{"id":"2d663f575e2b3033","type":"text","text":"Producto","x":-63,"y":154,"width":129,"height":60},
+		{"id":"5b5aeace239b29d5","type":"text","text":"**El cumplimiento de caracteristicas de calidad:**\n- Funcionalidad\n- Usabilidad\n- Mantenibilidad\n- Eficiencia\n- Confiabilidad\n","x":-123,"y":284,"width":249,"height":272},
+		{"id":"a427ea09d1f32b75","type":"text","text":"**Cómo y que se hace para elaborar el producto**:\n- Actividades\n- Tareas\n- Controles\n- Métricas","x":-400,"y":284,"width":248,"height":240},
+		{"id":"f30dfbe1505a791d","type":"text","text":"Procesos","x":-339,"y":154,"width":127,"height":60},
+		{"id":"479b7594c3c0997c","type":"text","text":"**Identificar aspectos a mejorar en los procesos:**\n- Planeación\n- Verificación\n- Análisis\n- Controles\n","x":160,"y":284,"width":249,"height":210},
+		{"id":"18cdae8d4fae5bdf","type":"text","text":"Mejora continua","x":195,"y":154,"width":180,"height":60}
+	],
+	"edges":[
+		{"id":"eab5c07ebbdadae2","fromNode":"5c3696bbde8a6be6","fromSide":"bottom","toNode":"f30dfbe1505a791d","toSide":"top"},
+		{"id":"958a597c3aab1f81","fromNode":"5c3696bbde8a6be6","fromSide":"bottom","toNode":"2d663f575e2b3033","toSide":"top"},
+		{"id":"f178b26427d10abd","fromNode":"5c3696bbde8a6be6","fromSide":"bottom","toNode":"18cdae8d4fae5bdf","toSide":"top"},
+		{"id":"32c586f7ed994917","fromNode":"f30dfbe1505a791d","fromSide":"bottom","toNode":"a427ea09d1f32b75","toSide":"top"},
+		{"id":"da764f82e54cf4fb","fromNode":"2d663f575e2b3033","fromSide":"bottom","toNode":"5b5aeace239b29d5","toSide":"top"},
+		{"id":"e42ce68ad9d21941","fromNode":"18cdae8d4fae5bdf","fromSide":"bottom","toNode":"479b7594c3c0997c","toSide":"top"}
+	]
+}

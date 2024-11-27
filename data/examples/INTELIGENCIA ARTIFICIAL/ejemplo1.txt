@@ -1,0 +1,12 @@
+Contexto:
+La inteligencia artificial (IA) abarca técnicas que permiten a las máquinas simular inteligencia humana. Esto incluye aprendizaje supervisado, no supervisado, y por refuerzo, además de técnicas como redes neuronales y procesamiento del lenguaje natural.
+
+Pregunta:
+¿Cómo funciona el aprendizaje supervisado en la inteligencia artificial?
+
+Respuesta:
+El aprendizaje supervisado es una técnica en IA donde un modelo se entrena utilizando un conjunto de datos etiquetados. Cada dato contiene una entrada (características) y una salida deseada (etiqueta o valor). El objetivo del modelo es aprender una función que relacione la entrada con la salida para predecir resultados en nuevos datos no vistos.
+
+Ejemplo: En un modelo que clasifica correos electrónicos como "spam" o "no spam", las entradas podrían incluir características como la presencia de palabras específicas o la frecuencia de enlaces, mientras que la salida sería la etiqueta correspondiente.
+
+El entrenamiento continúa ajustando parámetros internos hasta que se minimice el error entre las predicciones del modelo y las salidas reales.

@@ -1,0 +1,12 @@
+Contexto:
+La calidad de software se enfoca en garantizar que un sistema cumple con los requisitos definidos, tanto funcionales como no funcionales. Algunos conceptos clave incluyen las métricas de calidad, pruebas de software, y modelos como ISO/IEC 25010.
+
+Pregunta:
+¿Qué es el modelo de calidad ISO/IEC 25010 y cuáles son sus características principales?
+
+Respuesta:
+El modelo de calidad ISO/IEC 25010 es un estándar internacional que define un marco para evaluar la calidad del software. Está compuesto por dos modelos principales:
+
+Calidad del Producto: Define características como funcionalidad, confiabilidad, usabilidad, eficiencia, mantenibilidad, portabilidad, seguridad y compatibilidad.
+Calidad en Uso: Evalúa la capacidad del software para alcanzar objetivos específicos de usuario de forma efectiva, eficiente y satisfactoria en un contexto de uso particular.
+Ambos modelos permiten a los equipos de desarrollo establecer criterios claros para medir y mejorar la calidad del software durante todo su ciclo de vida.w
