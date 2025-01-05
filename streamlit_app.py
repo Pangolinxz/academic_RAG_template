@@ -4,13 +4,13 @@ import random
 import time
 from academic_assistant import AcademicAssistant
 
-# Crear instancia del asistente académico
+ # Crear instancia del asistente académico
 assistant = AcademicAssistant()
 
 # obtener respuesta del chatbot
 def get_bot_response(user_input, mode):
-    prompt_template = assistant.__________(mode)
-    response_content = assistant._________(user_input, prompt_template)
+    prompt_template = assistant.select_prompt_template(mode)
+    response_content = assistant.generate_response(user_input, prompt_template)
     return response_content
 
 
@@ -45,7 +45,7 @@ BOT_AVATAR = "assets/assistant_logo.svg"
 
 
 # Barra lateral para selección del modo (centrado)
-st.sidebar.______(
+st.sidebar.markdown(
     """
     <div style="text-align: center;">
         <h2>Modo de Estudio</h2>
@@ -59,7 +59,7 @@ st.sidebar.______(
 
 
 # Radio buttons para seleccionar el modo
-mode = st._______.______(
+mode = st.sidebar.radio(
     "Seleccione el modo de estudio",
     ["Repaso 🧠", "Simulacro 📝"],
     label_visibility="collapsed",
@@ -68,24 +68,24 @@ mode = st._______.______(
 st.session_state.mode = mode
 
 # Espaciador para centrar el botón de borrar chat
-st._____.______(
+st.sidebar.markdown(
     "<br><br>"*10, 
     unsafe_allow_html=True
     )
 
 
 # Botón de borrado del chat
-if st.______("🗑️ Borrar chat", key="clear_chat"):
-    st.______.______ = []
-    st.sidebar.______("¡El historial del chat ha sido borrado!")
+if st.sidebar.button("🗑️ Borrar chat", key="clear_chat"):
+    st.session_state.messages = []
+    st.sidebar.success("¡El historial del chat ha sido borrado!")
 
 
 
 # Pantalla principal del chatbot
 
 # Título centrado
-st.______(
-    "<h1 style='text-align: center;'>_________________</h1>",
+st.markdown(
+    "<h1 style='text-align: center;'>Asistente Academico</h1>",
     unsafe_allow_html=True
 )
 
@@ -100,33 +100,33 @@ st.markdown(
 
 
 # Mostrar mensajes del historial
-for message in st.___________.____________:
-    with st.___________(message["role"], avatar=USER_AVATAR if message["role"] == "user" else BOT_AVATAR):
-        st.____________(message["content"])
+for message in st.session_state.messages:
+    with st.chat_message(message["role"], avatar=USER_AVATAR if message["role"] == "user" else BOT_AVATAR):
+        st.markdown(message["content"])
 
 # Campo de entrada del usuario
-if prompt := st.______________("Escribe tu mensaje:"):
+if prompt := st.chat_input("Escribe tu mensaje:"):
 
     # Agregar mensaje del usuario al historial
-    st.session_state.___________.___________({"role": "user", "content": prompt})
+    st.session_state.messages.append({"role": "user", "content": prompt})
 
     # Mostrar el mensaje del usuario con su avatar
-    with st.___________("user", avatar=USER_AVATAR):
-        st.____________(prompt)
+    with st.chat_message("user", avatar=USER_AVATAR):
+        st.markdown(prompt)
 
-    # Obtener respuesta del bot
+    #Obtener respuesta del bot
     try:
-        bot_response = ______________( _____________ , _____________[:-2].lower())
+        bot_response = get_bot_response( prompt , st.session_state.mode[:-2].lower())
 
     except:
         bot_response = "No se pudo conectar con el servidor."
 
     # Mostrar respuesta del bot con animación
-    with st.____________( "assistant", avatar=BOT_AVATAR ):
-        st._____________( response_generator(bot_response) )
+    with st.chat_message( "assistant", avatar=BOT_AVATAR ):
+        st.write_stream( response_generator(bot_response))
 
     # Agregar respuesta al historial
-    st.___________.___________._________({"role": "assistant", "content": bot_response})
+    st.session_state.messages.append({"role": "assistant", "content": bot_response})
 
 
 
