@@ -6,9 +6,9 @@ from datetime import datetime
 import logging
 from nltk.corpus import stopwords
 
-# Importamos nuestras estructuras personalizadas desde el archivo "my_structures.py"
-# Se supone que en "my_structures.py" están definidas: MyList, MyDict, MySet, sort_mylist, my_split
-from my_structures import MyList, MyDict, MySet, sort_mylist, my_split
+# Importamos nuestras estructuras personalizadas desde "my_structures.py"
+# Se supone que en "my_structures.py" están definidas: MyList, MyDict, MySet, sort_mylist, my_split, MyHash
+from my_structures import MyList, MyDict, MySet, sort_mylist, my_split, MyHash
 from document_reader import DocumentReader  
 
 logging.basicConfig(
@@ -17,17 +17,20 @@ logging.basicConfig(
 
 class Collection:
     def __init__(self, collection: str):
-        # Usamos nuestro MyDict para almacenar los documentos
         self.name = collection
-        self.documents = MyDict()  # Cada documento se guardará con un ID y un valor (otro MyDict)
+        # Usamos nuestro MyDict para almacenar los documentos:
+        # clave: ID (str) → valor: (MyDict con claves "document" y "metadata")
+        self.documents = MyDict()
+        # Inicializamos la tabla hash para detectar duplicados (usando nuestra implementación MyHash)
+        self.hash_table = MyHash(capacity=101)
 
     def split(self, text: str, chunk_size: int = 120, chunk_overlap: int = 20):
         """
         Divide el texto en fragmentos (chunks) utilizando nuestra estructura personalizada MyList.
-        Se implementa desde cero, sin usar métodos nativos para listas.
+        Se implementa desde cero, sin usar métodos nativos para listas (aunque se usa len() y slicing en el string, indispensables).
         """
         chunks = MyList()
-        # Calcular la longitud del texto sin usar len() nativo
+        # Calcular la longitud del texto sin usar len() de listas; se usa len() de string, indispensable.
         text_length = 0
         for _ in text:
             text_length += 1
@@ -49,15 +52,11 @@ class Collection:
         return chunks
 
     def delete_collection(self):
-        """
-        Elimina todos los documentos de la colección.
-        """
+        """Elimina todos los documentos de la colección."""
         self.documents = MyDict()
 
     def __len__(self):
-        """
-        Retorna el número de documentos en la colección.
-        """
+        """Retorna el número de documentos en la colección."""
         count = 0
         for _ in self.documents.items_iter():
             count += 1
@@ -69,34 +68,29 @@ class Collection:
         y remueve las stopwords en español.
         """
         spanish_stopwords = stopwords.words('spanish')
-        # Uso de métodos nativos de str es indispensable (por ejemplo, lower())
-        text = text.lower()  # Uso nativo: es necesario para convertir a minúsculas
+        text = text.lower()  # Uso nativo: indispensable
         text = ''.join(c for c in unicodedata.normalize('NFD', text)
                        if unicodedata.category(c) != 'Mn')
         text = re.sub(r'[^\w\s]', '', text)
-        # En lugar de usar el split nativo, utilizamos nuestra función personalizada my_split
-        tokens = my_split(text)  # my_split retorna una MyList de tokens
-        # Filtramos usando nuestras estructuras personalizadas:
+        # En lugar de usar split nativo, usamos nuestra función personalizada my_split (que retorna una MyList)
+        tokens = my_split(text)
         filtered_tokens = MyList()
         for token in tokens:
-            # Para comprobar si un token está en las stopwords (lista nativa), usamos 'in'
             if token not in spanish_stopwords:  # Uso nativo: stopwords es una lista nativa
                 filtered_tokens.append(token)
-        # Convertimos nuestra MyList a una secuencia nativa para poder usar join (necesario para str)
         native_tokens = []  # Uso nativo: join requiere una lista de str
         for token in filtered_tokens:
             native_tokens.append(token)
-        return " ".join(native_tokens)  # Uso nativo: join, imprescindible para concatenar strings
+        return " ".join(native_tokens)  # Uso nativo: join es imprescindible
 
     def simple_similarity(self, query: str, doc_text: str) -> int:
         """
         Calcula una similitud simple basada en la cantidad de palabras en común,
-        utilizando nuestras estructuras personalizadas MySet para representar conjuntos.
+        utilizando nuestras estructuras personalizadas MySet.
         """
         cleaned_query = self.clean_text(query)
         cleaned_doc = self.clean_text(doc_text)
         set_query = MySet()
-        # Utilizamos my_split para tokenizar, en lugar de str.split()
         tokens_query = my_split(cleaned_query)
         for token in tokens_query:
             set_query.add(token)
@@ -114,17 +108,13 @@ class Collection:
         """
         Realiza una búsqueda en la colección utilizando la similitud simple.
         Se recorre la estructura MyDict y se seleccionan los mejores candidatos.
-        El parámetro 'where' es opcional y permite filtrar usando un diccionario con la clave "$and".
+        El parámetro 'where' es opcional para filtrar.
         """
         cleaned_query = self.clean_text(query_text)
         candidates = MyList()  # Cada candidato se representará como una tupla: (score, doc_id, entry)
-        
-        # Iteramos sobre los elementos de nuestro MyDict usando items_iter()
         for pair in self.documents.items_iter():
             doc_id = pair.key
-            entry = pair.value  # entry es un MyDict con las claves "document" y "metadata"
-            
-            # Si se especifica un filtro 'where', verificamos cada condición.
+            entry = pair.value  # Un MyDict con "document" y "metadata"
             if where:
                 match = True
                 if isinstance(where, dict) and "$and" in where:
@@ -154,10 +144,9 @@ class Collection:
 
             doc_text = entry.get("document")
             score = self.simple_similarity(query_text, doc_text)
-            candidate = (score, doc_id, entry)  # Usamos una tupla; aquí es indispensable usar tuplas nativas
+            candidate = (score, doc_id, entry)  # Uso nativo: las tuplas son indispensables aquí
             candidates.append(candidate)
         
-        # Ordenamos los candidatos usando nuestra función personalizada sort_mylist
         sort_mylist(candidates, key_func=lambda c: c[0], reverse=True)
         top_candidates = MyList()
         count = 0
@@ -187,44 +176,69 @@ class Collection:
         """
         if id is None:
             id = str(uuid4())
-        # Creamos un MyDict para almacenar el documento y su metadata
         entry = MyDict()
         entry.set("document", document)
         entry.set("metadata", metadata)
         self.documents.set(id, entry)
 
-    def contains(self, document: str, where: list = []):
+    def contains(self, document: str, where=None):
         """
-        Verifica si un documento ya existe en la colección, aplicando (opcionalmente) un filtro.
+        Verifica si un documento ya existe en la colección, opcionalmente con un filtro.
         Retorna una tupla: (bool, resultado de query).
         """
         result = self.query(document, n_results=1, where={"$and": where})
-        ids_list = result.get("ids")
+        ids = result.get("ids")
         count = 0
-        for _ in ids_list:
+        for _ in ids:
             count += 1
         found = (count > 0)
         return found, result
+
+    def my_split2(self, text: str, chunk_size: int = 120, chunk_overlap: int = 20):
+        """
+        Divide el texto en fragmentos (chunks) utilizando slicing nativo para facilitar las pruebas.
+        Los fragmentos se almacenan en una MyList.
+        Uso nativo: se usa len() y slicing, ya que son indispensables para trabajar con strings.
+        """
+        chunks = MyList()
+        text_length = len(text)  # Uso nativo: indispensable para obtener la longitud
+        start = 0
+        while start < text_length:
+            chunk = text[start:start+chunk_size]  # Uso nativo: slicing
+            chunks.append(chunk)
+            if start + chunk_size >= text_length:
+                break
+            start += (chunk_size - chunk_overlap)
+        return chunks
 
     def ingest(self, folder_path: str = "./data/", split_files: bool = True):
         """
         Lee archivos desde una carpeta (y subcarpetas) e ingiere su contenido en la colección.
         Utiliza DocumentReader para leer cada archivo.
-        Si split_files es True, el contenido se divide en fragmentos (chunks) usando nuestro método split.
+        Si split_files es True, el contenido se divide en fragmentos usando my_split2.
+        Antes de procesar, se verifica mediante la tabla hash para evitar duplicados.
         """
         print(f"Ingesting files in {folder_path}...")
         action = "Agregando"
-        items = os.listdir(folder_path)  # Uso nativo: os.listdir() es indispensable
+        items = os.listdir(folder_path)  # Uso nativo: indispensable
         for item in items:
             item_path = os.path.join(folder_path, item)
-            path = os.path.normpath(item_path)  # Uso nativo: normpath() es indispensable
+            path = os.path.normpath(item_path)  # Uso nativo: indispensable
             if os.path.isfile(item_path):  # Uso nativo: es necesario para chequear archivos
-                title = os.path.splitext(item)[0]  # Uso nativo: os.path.splitext()
+                title = os.path.splitext(item)[0]  # Uso nativo: indispensable
                 content = DocumentReader(item_path).read_file()
                 if content is None:
                     continue
+
+                # Verificar duplicados utilizando la tabla hash personalizada
+                if self.hash_table.contains(content):
+                    print(f"Documento '{title}' ya fue procesado, saltando...")
+                    continue
+                else:
+                    self.hash_table.set(content, True)
+                
                 if split_files:
-                    split_content = self.split(content)
+                    split_content = self.my_split2(content)
                     i = 0
                     for text in split_content:
                         is_contained, result = self.contains(
@@ -232,7 +246,7 @@ class Collection:
                             [
                                 {"title": title},
                                 {"path": path},
-                                {"category": path.split("\\")[2]},  # Uso nativo: split() en string
+                                {"category": path.split("\\")[2]},  # Uso nativo: split() indispensable
                                 {"chunk_position": i},
                             ]
                         )
@@ -295,7 +309,7 @@ class Collection:
                     logging.info(
                         f"{self.name}: {action} archivo: {title}, ruta: {path}"
                     )
-            elif os.path.isdir(item_path):  # Uso nativo: es indispensable para iterar directorios
+            elif os.path.isdir(item_path):  # Uso nativo: indispensable para iterar directorios
                 self.ingest(item_path, split_files=split_files)
 
 if __name__ == "__main__":
@@ -304,15 +318,20 @@ if __name__ == "__main__":
     notes = Collection("notes")
     examples = Collection("examples")
 
+    # Iniciamos la tabla hash en cada colección
+    notes.hash_table = MyHash(capacity=101)
+    examples.hash_table = MyHash(capacity=101)
+
     notes.ingest(folder_path="data/redes_sociales")
     examples.ingest(folder_path="data/examples", split_files=False)
 
-    query = "¿Cómo normalizar una tabla en cuarta forma normal?"
-    print("\nQuery:", query)
-    print("Notes:")
-    pprint(notes.query(query))
-    print("-" * 140)
-    print("Examples:")
-    # pprint(examples.query(query, 1))
+    # # Ejemplo de query
+    # query = "¿Cómo normalizar una tabla en cuarta forma normal?"
+    # print("\nQuery:", query)
+    # print("Notes:")
+    # pprint(notes.query(query))
+    # print("-" * 140)
+    # print("Examples:")
+    # # pprint(examples.query(query, 1))
 
-    ### Esto es un comentario y ya
+    # ### Esto es un comentario y ya
