@@ -20,7 +20,7 @@ def open_sudoku():
     for row in board:
         st.write(row)
 
-# Crear instancia del asistente académico para el flujo normal
+# Crear instancia del asistente académico (flujo normal)
 assistant = AcademicAssistant()
 
 def get_bot_response(user_input, mode):
@@ -37,23 +37,19 @@ def response_generator(message: str):
 
 # Estado inicial en session_state
 if "mode" not in st.session_state:
-    st.session_state.mode = "Repaso 🧠"  # Modo predeterminado
+    st.session_state.mode = "Repaso 🧠"
 if "messages" not in st.session_state:
     st.session_state.messages = []
-if "sudoku_pending" not in st.session_state:
-    st.session_state.sudoku_pending = False
+if "sudoku_command" not in st.session_state:
+    st.session_state.sudoku_command = None
 
 USER_AVATAR = "assets/student_logo.svg"
 BOT_AVATAR = "assets/assistant_logo.svg"
 
 st.sidebar.markdown(
-    """
-    <div style="text-align: center;">
-        <h2>Modo de Estudio</h2>
-    </div>
-    """, unsafe_allow_html=True
+    "<div style='text-align: center;'><h2>Modo de Estudio</h2></div>",
+    unsafe_allow_html=True
 )
-
 mode = st.sidebar.radio(
     "Seleccione el modo de estudio",
     ["Repaso 🧠", "Simulacro 📝"],
@@ -62,25 +58,17 @@ mode = st.sidebar.radio(
 )
 st.session_state.mode = mode
 
-st.sidebar.markdown("<br><br>"*10, unsafe_allow_html=True)
-
+st.sidebar.markdown("<br><br>" * 10, unsafe_allow_html=True)
 if st.sidebar.button("🗑️ Borrar chat", key="clear_chat"):
     st.session_state.messages = []
     st.sidebar.success("¡El historial del chat ha sido borrado!")
 
-st.markdown(
-    "<h1 style='text-align: center;'>Asistente Virtual CC</h1>",
-    unsafe_allow_html=True
-)
-mode_text = f"Modo: {st.session_state.mode}"
-st.markdown(
-    f"<h3 style='text-align: center;'>{mode_text}</h3>",
-    unsafe_allow_html=True
-)
+st.markdown("<h1 style='text-align: center;'>Asistente Virtual CC</h1>", unsafe_allow_html=True)
+st.markdown(f"<h3 style='text-align: center;'>Modo: {st.session_state.mode}</h3>", unsafe_allow_html=True)
 
 # Mostrar historial del chat
 for message in st.session_state.messages:
-    with st.chat_message(message["role"], avatar=USER_AVATAR if message["role"] == "user" else BOT_AVATAR):
+    with st.chat_message(message["role"], avatar=USER_AVATAR if message["role"]=="user" else BOT_AVATAR):
         st.markdown(message["content"])
 
 # Campo de entrada del usuario
@@ -89,24 +77,28 @@ if prompt := st.chat_input("Escribe tu mensaje:"):
     with st.chat_message("user", avatar=USER_AVATAR):
         st.markdown(prompt)
     
-    # Si la entrada contiene "sudoku", activamos la bandera
-    if "sudoku" in prompt.lower():
-        st.session_state.sudoku_pending = True
-    
-    # Si hay un comando de sudoku pendiente, mostramos la confirmación
-    if st.session_state.sudoku_pending:
-        confirm = st.radio(
+    # Detectar si el mensaje contiene palabras clave relacionadas con "sudoku"
+    keywords = ["sudoku", "abre sudoku", "inicia sudoku", "juego de sudoku", "inicia el juego"]
+    if any(keyword in prompt.lower() for keyword in keywords):
+        st.session_state.sudoku_command = prompt
+    else:
+        st.session_state.sudoku_command = None
+
+    # Si se detectó un comando de sudoku, mostrar la confirmación
+    if st.session_state.sudoku_command is not None:
+        # Usamos un selectbox con opción placeholder para forzar la elección
+        choice = st.selectbox(
             "Se detectó un comando relacionado con Sudoku. ¿Desea iniciar el juego de Sudoku?",
-            options=["Sí", "No"],
-            key="sudoku_confirm"
+            options=["Seleccione una opción", "Sí", "No"],
+            key="sudoku_choice"
         )
-        if confirm == "Sí":
+        if choice == "Sí":
             with st.chat_message("assistant", avatar=BOT_AVATAR):
                 st.write("Iniciando el juego de Sudoku...")
             open_sudoku()
             st.session_state.messages.append({"role": "assistant", "content": "Juego de Sudoku iniciado."})
-        else:
-            # Si el usuario no confirma, continúa el flujo normal (podrías enviar el mensaje al chatbot)
+        elif choice == "No":
+            # Si el usuario selecciona "No", procesamos el mensaje normalmente.
             try:
                 bot_response = get_bot_response(prompt, st.session_state.mode[:-2].lower())
             except Exception as e:
@@ -114,8 +106,8 @@ if prompt := st.chat_input("Escribe tu mensaje:"):
             with st.chat_message("assistant", avatar=BOT_AVATAR):
                 st.write_stream(response_generator(bot_response))
             st.session_state.messages.append({"role": "assistant", "content": bot_response})
-        # Una vez confirmada la opción (Sí o No), reiniciamos la bandera
-        st.session_state.sudoku_pending = False
+        # Reiniciamos la bandera para no volver a preguntar en futuros mensajes
+        st.session_state.sudoku_command = None
     else:
         # Flujo normal: enviar el mensaje al chatbot
         try:
