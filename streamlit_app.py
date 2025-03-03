@@ -1,27 +1,81 @@
 import streamlit as st
 import random
 import time
-from academic_assistant import AcademicAssistant
+from influencer_assistant import InfluencerAssistant
+import datetime
+import calendar
 
-# Función para mostrar un tablero de sudoku (ejemplo simple)
-def open_sudoku():
-    st.header("Juego de Sudoku")
-    board = [
-        [5, 3, 0, 0, 7, 0, 0, 0, 0],
-        [6, 0, 0, 1, 9, 5, 0, 0, 0],
-        [0, 9, 8, 0, 0, 0, 0, 6, 0],
-        [8, 0, 0, 0, 6, 0, 0, 0, 3],
-        [4, 0, 0, 8, 0, 3, 0, 0, 1],
-        [7, 0, 0, 0, 2, 0, 0, 0, 6],
-        [0, 6, 0, 0, 0, 0, 2, 8, 0],
-        [0, 0, 0, 4, 1, 9, 0, 0, 5],
-        [0, 0, 0, 0, 8, 0, 0, 7, 9]
-    ]
-    for row in board:
-        st.write(row)
+class DateNode:
+    def __init__(self, date):
+        self.date = date
+        self.events = []
+        self.adjacent_nodes = {}  
+    def add_adjacent_node(self, key, node):
+        self.adjacent_nodes[key] = node
 
-# Crear instancia del asistente académico (flujo normal)
-assistant = AcademicAssistant()
+    def __repr__(self):
+        return f"DateNode({self.date.strftime('%Y-%m-%d')})"
+
+class CalendarGraph:
+    def __init__(self, year, month):
+        self.year = year
+        self.month = month
+        self.nodes = {}
+        self._generate_nodes()
+        self._connect_adjacent_nodes()
+
+    def _generate_nodes(self):
+        num_days = calendar.monthrange(self.year, self.month)[1]
+        for day in range(1, num_days + 1):
+            date = datetime.date(self.year, self.month, day)
+            self.nodes[date] = DateNode(date)
+
+    def _connect_adjacent_nodes(self):
+        for date in list(self.nodes.keys()):
+            node = self.nodes[date]
+
+            next_day = date + datetime.timedelta(days=1)
+            if next_day in self.nodes:
+                node.add_adjacent_node('next_day', self.nodes[next_day])
+
+            prev_day = date - datetime.timedelta(days=1)
+            if prev_day in self.nodes:
+                node.add_adjacent_node('prev_day', self.nodes[prev_day])
+
+            next_week = date + datetime.timedelta(weeks=1)
+            if next_week in self.nodes:
+                node.add_adjacent_node('next_week', self.nodes[next_week])
+
+            prev_week = date - datetime.timedelta(weeks=1)
+            if prev_week in self.nodes:
+                node.add_adjacent_node('prev_week', self.nodes[prev_week])
+
+    def add_event(self, date, event_name, event_time):
+        if date in self.nodes:
+            self.nodes[date].events.append({
+                'name': event_name,
+                'time': event_time
+            })
+        else:
+            raise ValueError("Date not in calendar")
+
+    def display_calendar(self):
+        cal = calendar.Calendar()
+        weeks = cal.monthdays2calendar(self.year, self.month)
+        print(f"Calendar for {datetime.date(self.year, self.month, 1).strftime('%B %Y')}:\n")
+        for week in weeks:
+            week_str = []
+            for day, _ in week:
+                if day == 0:
+                    week_str.append('  ')
+                else:
+                    date = datetime.date(self.year, self.month, day)
+                    node = self.nodes[date]
+                    event_count = len(node.events)
+                    week_str.append(f"{day:2}({event_count})")
+            print(' '.join(week_str))
+
+assistant = InfluencerAssistant()
 
 def get_bot_response(user_input, mode):
     prompt_template = assistant.select_prompt_template(mode)
@@ -37,11 +91,13 @@ def response_generator(message: str):
 
 # Estado inicial en session_state
 if "mode" not in st.session_state:
-    st.session_state.mode = "Repaso 🧠"
+    st.session_state.mode = "Asistente"
 if "messages" not in st.session_state:
     st.session_state.messages = []
-if "sudoku_command" not in st.session_state:
-    st.session_state.sudoku_command = None
+if "calendars" not in st.session_state:
+    st.session_state.calendars = {}
+if "selected_date" not in st.session_state:
+    st.session_state.selected_date = datetime.date.today()
 
 USER_AVATAR = "assets/student_logo.svg"
 BOT_AVATAR = "assets/assistant_logo.svg"
@@ -52,7 +108,7 @@ st.sidebar.markdown(
 )
 mode = st.sidebar.radio(
     "Seleccione el modo de estudio",
-    ["Repaso 🧠", "Simulacro 📝"],
+    ["Asistente 🧠", "Calendario"],
     label_visibility="collapsed",
     index=0
 )
@@ -66,50 +122,87 @@ if st.sidebar.button("🗑️ Borrar chat", key="clear_chat"):
 st.markdown("<h1 style='text-align: center;'>Asistente Virtual CC</h1>", unsafe_allow_html=True)
 st.markdown(f"<h3 style='text-align: center;'>Modo: {st.session_state.mode}</h3>", unsafe_allow_html=True)
 
-# Mostrar historial del chat
-for message in st.session_state.messages:
-    with st.chat_message(message["role"], avatar=USER_AVATAR if message["role"]=="user" else BOT_AVATAR):
-        st.markdown(message["content"])
 
-# Campo de entrada del usuario
-if prompt := st.chat_input("Escribe tu mensaje:"):
-    st.session_state.messages.append({"role": "user", "content": prompt})
-    with st.chat_message("user", avatar=USER_AVATAR):
-        st.markdown(prompt)
+if st.session_state.mode == "Calendario":
+    selected_date = st.date_input("Seleccionar fecha", st.session_state.selected_date)
+    st.session_state.selected_date = selected_date
     
-    # Detectar si el mensaje contiene palabras clave relacionadas con "sudoku"
-    keywords = ["sudoku", "abre sudoku", "inicia sudoku", "juego de sudoku", "inicia el juego"]
-    if any(keyword in prompt.lower() for keyword in keywords):
-        st.session_state.sudoku_command = prompt
-    else:
-        st.session_state.sudoku_command = None
+    current_year = selected_date.year
+    current_month = selected_date.month
 
-    # Si se detectó un comando de sudoku, mostrar la confirmación
-    if st.session_state.sudoku_command is not None:
-        # Usamos un selectbox con opción placeholder para forzar la elección
-        choice = st.selectbox(
-            "Se detectó un comando relacionado con Sudoku. ¿Desea iniciar el juego de Sudoku?",
-            options=["Seleccione una opción", "Sí", "No"],
-            key="sudoku_choice"
-        )
-        if choice == "Sí":
-            with st.chat_message("assistant", avatar=BOT_AVATAR):
-                st.write("Iniciando el juego de Sudoku...")
-            open_sudoku()
-            st.session_state.messages.append({"role": "assistant", "content": "Juego de Sudoku iniciado."})
-        elif choice == "No":
-            # Si el usuario selecciona "No", procesamos el mensaje normalmente.
-            try:
-                bot_response = get_bot_response(prompt, st.session_state.mode[:-2].lower())
-            except Exception as e:
-                bot_response = "No se pudo conectar con el servidor."
-            with st.chat_message("assistant", avatar=BOT_AVATAR):
-                st.write_stream(response_generator(bot_response))
-            st.session_state.messages.append({"role": "assistant", "content": bot_response})
-        # Reiniciamos la bandera para no volver a preguntar en futuros mensajes
-        st.session_state.sudoku_command = None
-    else:
-        # Flujo normal: enviar el mensaje al chatbot
+    if (current_year, current_month) not in st.session_state.calendars:
+        st.session_state.calendars[(current_year, current_month)] = CalendarGraph(current_year, current_month)
+    
+    current_calendar = st.session_state.calendars[(current_year, current_month)]
+    
+    col1, col2 = st.columns([1, 3])
+    
+    with col1:
+        with st.form("event_form"):
+            event_name = st.text_input("Nombre del evento")
+            event_time = st.time_input("Hora del evento")
+            add_event = st.form_submit_button("➕ Añadir evento")
+            
+            if add_event and event_name:
+                try:
+                    current_calendar.add_event(
+                        selected_date,
+                        event_name,
+                        event_time.strftime("%H:%M")
+                    )
+                    st.success("Evento añadido correctamente!")
+                    current_calendar.display_calendar()
+                except ValueError:
+                    st.error("Fecha no válida para este mes")
+
+    with col2:
+        st.subheader(f"Calendario de {selected_date.strftime('%B %Y')}")
+        
+
+        cal = calendar.Calendar()
+        weeks = cal.monthdays2calendar(current_year, current_month)
+        
+        st.markdown("""
+        <style>
+        .calendar-day {
+            border: 1px solid #e1e4e8;
+            padding: 10px;
+            min-height: 100px;
+        }
+        </style>
+        """, unsafe_allow_html=True)
+
+
+        for week in weeks:
+            cols = st.columns(7)
+            for i, (day, _) in enumerate(week):
+                with cols[i]:
+                    if day != 0:
+                        date = datetime.date(current_year, current_month, day)
+                        node = current_calendar.nodes[date]
+                        
+                        if date == selected_date:
+                            st.markdown(f"<div style='background-color: #e3f2fd;' class='calendar-day'>", unsafe_allow_html=True)
+                        else:
+                            st.markdown("<div class='calendar-day'>", unsafe_allow_html=True)
+                        
+                        st.markdown(f"**{day}**")
+                        for event in node.events:
+                            st.markdown(f"⏰ {event['time']} {event['name']}")
+                        st.markdown("</div>", unsafe_allow_html=True)
+else:
+
+    for message in st.session_state.messages:
+        with st.chat_message(message["role"], avatar=USER_AVATAR if message["role"]=="user" else BOT_AVATAR):
+            st.markdown(message["content"])
+
+
+    if prompt := st.chat_input("Escribe tu mensaje:"):
+        st.session_state.messages.append({"role": "user", "content": prompt})
+        with st.chat_message("user", avatar=USER_AVATAR):
+            st.markdown(prompt)
+        
+
         try:
             bot_response = get_bot_response(prompt, st.session_state.mode[:-2].lower())
         except Exception as e:
