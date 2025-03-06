@@ -2,11 +2,23 @@ import logging
 from dotenv import load_dotenv
 import os
 from huggingface_hub import InferenceClient
-
+from ia_collection import Collection
 # Importamos nuestra implementación de Collection (que utiliza nuestras propias estructuras)
-from my_structures import Collection
+from my_structures import MyHash
 
 # Función auxiliar para convertir nuestra estructura de lista personalizada (MyList) a una lista nativa de Python.
+
+notes = Collection("notes")
+examples = Collection("examples")
+
+
+notes.hash_table = MyHash(capacity=101)
+examples.hash_table = MyHash(capacity=101)
+
+notes.ingest(folder_path="data/redes_sociales")
+examples.ingest(folder_path="data/examples", split_files=False)
+
+
 def custom_list_to_native(my_list):
     native_list = []
     for item in my_list:
@@ -46,7 +58,10 @@ class InfluencerAssistant:
         return logger
 
     def initialize_collection(self, collection_name):
-        return Collection(collection_name)
+        if collection_name == "notes":
+            return notes
+        if collection_name == "examples":
+            return examples
 
     def get_notes(self, query):
         # Obtenemos la respuesta de la consulta usando nuestra colección personalizada
@@ -126,3 +141,4 @@ class InfluencerAssistant:
 if __name__ == "__main__":
     assistant = InfluencerAssistant()
     assistant.run()
+
