@@ -99,16 +99,16 @@ if "calendars" not in st.session_state:
 if "selected_date" not in st.session_state:
     st.session_state.selected_date = datetime.date.today()
 
-USER_AVATAR = "assets/student_logo.svg"
+USER_AVATAR = "assets/influencer_logo.svg"
 BOT_AVATAR = "assets/assistant_logo.svg"
 
 st.sidebar.markdown(
-    "<div style='text-align: center;'><h2>Modo de Estudio</h2></div>",
+    "<div style='text-align: center;'><h2>Modo de Asistente</h2></div>",
     unsafe_allow_html=True
 )
 mode = st.sidebar.radio(
-    "Seleccione el modo de estudio",
-    ["Asistente 🧠", "Calendario"],
+    "Seleccione el modo de Asistente",
+    ["Asistente  ", "Calendario"],
     label_visibility="collapsed",
     index=0
 )
@@ -210,3 +210,4 @@ else:
         with st.chat_message("assistant", avatar=BOT_AVATAR):
             st.write_stream(response_generator(bot_response))
         st.session_state.messages.append({"role": "assistant", "content": bot_response})
+
