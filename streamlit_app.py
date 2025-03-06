@@ -210,3 +210,4 @@ else:
         with st.chat_message("assistant", avatar=BOT_AVATAR):
             st.write_stream(response_generator(bot_response))
         st.session_state.messages.append({"role": "assistant", "content": bot_response})
+
