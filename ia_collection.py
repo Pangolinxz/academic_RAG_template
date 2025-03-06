@@ -312,26 +312,3 @@ class Collection:
             elif os.path.isdir(item_path):  # Uso nativo: indispensable para iterar directorios
                 self.ingest(item_path, split_files=split_files)
 
-if __name__ == "__main__":
-    from pprint import pprint
-
-    notes = Collection("notes")
-    examples = Collection("examples")
-
-    # Iniciamos la tabla hash en cada colección
-    notes.hash_table = MyHash(capacity=101)
-    examples.hash_table = MyHash(capacity=101)
-
-    notes.ingest(folder_path="data/redes_sociales")
-    examples.ingest(folder_path="data/examples", split_files=False)
-
-    # # Ejemplo de query
-    # query = "¿Cómo normalizar una tabla en cuarta forma normal?"
-    # print("\nQuery:", query)
-    # print("Notes:")
-    # pprint(notes.query(query))
-    # print("-" * 140)
-    # print("Examples:")
-    # # pprint(examples.query(query, 1))
-
-    # ### Esto es un comentario y ya
