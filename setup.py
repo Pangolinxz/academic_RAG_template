@@ -3,7 +3,7 @@
 from setuptools import find_packages, setup  # type: ignore
 
 setup(
-    name="academic_rag",
+    name="influencer_rag",
     version="0.1",
     packages=find_packages(),
     install_requires=[
